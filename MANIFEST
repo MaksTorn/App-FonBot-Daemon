@@ -1,0 +1,19 @@
+Changes
+COPYING
+Makefile.PL
+MANIFEST
+README
+config.pl Example fonbotd configuration file
+fonbotd
+log4perl.conf Example log4perl configuration file
+t/App-FonBot-Daemon.t
+Email.pm
+lib/App/FonBot/Daemon.pm
+lib/App/FonBot/Plugin/IRC.pm
+lib/App/FonBot/Plugin/Config.pm
+lib/App/FonBot/Plugin/HTTPD.pm
+lib/App/FonBot/Plugin/Common.pm
+lib/App/FonBot/Plugin/BitlBee.pm
+lib/App/FonBot/Plugin/OFTC.pm
+
+META.yml                                 Module meta-data (added by MakeMaker)
