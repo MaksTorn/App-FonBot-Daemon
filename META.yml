@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               App-FonBot-Daemon
-version:            0.000_1
+version:            0.000_2
 abstract:           FonBot daemon
 author:
     - Marius Gavrilescu <marius@ieval.ro>

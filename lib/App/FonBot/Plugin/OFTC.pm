@@ -1,6 +1,6 @@
 package App::FonBot::Plugin::OFTC;
 
-our $VERSION = '0.000_1';
+our $VERSION = '0.000_2';
 
 use v5.14;
 use strict;

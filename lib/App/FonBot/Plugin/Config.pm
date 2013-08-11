@@ -1,6 +1,6 @@
 package App::FonBot::Plugin::Config;
 
-our $VERSION = '0.000_1';
+our $VERSION = '0.000_2';
 
 use v5.14;
 use strict;
@@ -25,7 +25,7 @@ my $log=Log::Log4perl->get_logger(__PACKAGE__);
 
 sub init{
   $log->info('reading config file');
-  unless ($ret = do '/etc/fonbotd/config.pl') {
+  unless (my $ret = do '/etc/fonbotd/config.pl') {
 	die "Cannot parse config file: $@" if $@;
 	die "Cannot run config file: $!" unless $ret;
   }

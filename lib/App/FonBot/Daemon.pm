@@ -1,6 +1,6 @@
 package App::FonBot::Daemon;
 
-our $VERSION = '0.000_1';
+our $VERSION = '0.000_2';
 
 use 5.014000;
 use strict;
