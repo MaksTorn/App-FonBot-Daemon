@@ -1,6 +1,6 @@
 package App::FonBot::Daemon;
 
-our $VERSION = '0.000_2';
+our $VERSION = '0.000_3';
 
 use 5.014000;
 use strict;
@@ -62,7 +62,9 @@ Runs the FonBot daemon
 
 Runs the plugin finalizers
 
-=item AUTHOR
+=back
+
+=head1 AUTHOR
 
 Marius Gavrilescu C<< <marius@ieval.ro> >>
 

@@ -1,6 +1,4 @@
 Revision history for Perl extension App::FonBot::Daemon.
 
-0.001  Thu Aug  8 20:43:16 2013
-	- original version; created by h2xs 1.23 with options
-		-AX --skip-exporter -b 5.14.0 -v 0.001 App::FonBot::Daemon
+[ This will be filled in when the first non-dev build is released ]
 

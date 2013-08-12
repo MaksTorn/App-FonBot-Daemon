@@ -1,6 +1,6 @@
 package App::FonBot::Plugin::HTTPD;
 
-our $VERSION = '0.000_2';
+our $VERSION = '0.000_3';
 
 use v5.14;
 use strict;
