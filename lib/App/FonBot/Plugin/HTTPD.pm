@@ -1,6 +1,6 @@
 package App::FonBot::Plugin::HTTPD;
 
-our $VERSION = '0.000_3';
+our $VERSION = '0.000_4';
 
 use v5.14;
 use strict;
@@ -29,221 +29,220 @@ my %waiting_userrequests;
 my %responses;
 
 sub init{
-  $log->info('initializing '.__PACKAGE__);
-  %waiting_requests = ();
-  %waiting_userrequests = ();
-  $httpd = POE::Component::Server::HTTP->new(
-	  Port => 8888,
-	  PreHandler => { '/' => [\&pre_auth, \&pre_get, \&pre_userget], },
-	  ContentHandler =>{ '/send' => \&on_send, '/get' => \&on_get, '/ok' => \&on_ok, '/userget' => \&on_userget, '/usersend' => \&on_usersend },
-	  ErrorHandler => { '/' => sub { RC_OK }},
-	  Headers => { 'Cache-Control' => 'no-cache' },
+	$log->info('initializing '.__PACKAGE__);
+	%waiting_requests = ();
+	%waiting_userrequests = ();
+	$httpd = POE::Component::Server::HTTP->new(
+		Port => 8888,
+		PreHandler => { '/' => [\&pre_auth, \&pre_get, \&pre_userget], },
+		ContentHandler =>{ '/send' => \&on_send, '/get' => \&on_get, '/ok' => \&on_ok, '/userget' => \&on_userget, '/usersend' => \&on_usersend },
+		ErrorHandler => { '/' => sub { RC_OK }},
+		Headers => { 'Cache-Control' => 'no-cache' },
 	);
 }
 
 sub fini{
-  $log->info('finishing '.__PACKAGE__);
-  POE::Kernel->call($httpd, 'shutdown');
+	$log->info('finishing '.__PACKAGE__);
+	POE::Kernel->call($httpd, 'shutdown');
 }
 
 ##################################################
 
 sub httpdie (\$$;$){
-  my ($response,$errstr,$errcode)=@_;
+	my ($response,$errstr,$errcode)=@_;
 
-  $$response->code($errcode // HTTP_BAD_REQUEST);
-  $$response->header(Content_Type => 'text/plain');
-  $$response->message($errstr);
+	$$response->code($errcode // HTTP_BAD_REQUEST);
+	$$response->header(Content_Type => 'text/plain');
+	$$response->message($errstr);
 
-  die 'Bad Request';
+	die 'Bad Request';
 }
 
 sub pre_auth{
-  my ($request, $response)=@_;
+	my ($request, $response)=@_;
 
-  eval {
-	my $authorization=$request->header('Authorization') // die 'No Authorization header';
-	$authorization =~ /^Basic (.+)$/ or die 'Invalid Authorization header';
-	my ($user, $password) = decode_base64($1) =~ /^(.+):(.*)$/ or die 'Invalid Authorization header';
-	eval { pwcheck $user, $password; 1 } or die 'Invalid user/password combination';
-	$request->header(Username => $user);
-	$log->debug("HTTP request from $user to url ".$request->url);
-  };
-  if (my $error = $@) {
-	$response->code(HTTP_UNAUTHORIZED);
-	$response->message('Bad username or password');
-	$response->header(Content_Type => 'text/plain');
-	$response->header(WWW_Authenticate => 'Basic realm="fonbotd"');
-	$response->content('Unauthorized');
-	$log->debug("Request denied: $error");
-	return RC_DENY
-  }
+	eval {
+		my $authorization=$request->header('Authorization') // die 'No Authorization header';
+		$authorization =~ /^Basic (.+)$/ or die 'Invalid Authorization header';
+		my ($user, $password) = decode_base64($1) =~ /^(.+):(.*)$/ or die 'Invalid Authorization header';
+		eval { pwcheck $user, $password; 1 } or die 'Invalid user/password combination';
+		$request->header(Username => $user);
+		$log->debug("HTTP request from $user to url ".$request->url);
+	};
+	if (my $error = $@) {
+		$response->code(HTTP_UNAUTHORIZED);
+		$response->message('Bad username or password');
+		$response->header(Content_Type => 'text/plain');
+		$response->header(WWW_Authenticate => 'Basic realm="fonbotd"');
+		$response->content('Unauthorized');
+		$log->debug("Request denied: $error");
+		return RC_DENY
+	}
 
-  $response->content('');
-  RC_OK
+	$response->content('');
+	RC_OK
 }
 
 sub pre_get{
-  my ($request, $response)=@_;
-  my $user=$request->header('Username');
-  return RC_OK if $response->code;
-  return RC_OK unless $user;
-  return RC_OK unless $request->uri =~ m,/get,;
+	my ($request, $response)=@_;
+	my $user=$request->header('Username');
+	return RC_OK if $response->code;
+	return RC_OK unless $user;
+	return RC_OK unless $request->uri =~ m,/get,;
 
-  unless (exists $commands{$user}) {
-	$log->debug("No pending commands for $user, entering RC_WAIT");
-	$waiting_requests{$user}->continue if exists $waiting_requests{$user};
-	$waiting_requests{$user}=$response;
-	return RC_WAIT
-  }
+	unless (exists $commands{$user}) {
+		$log->debug("No pending commands for $user, entering RC_WAIT");
+		$waiting_requests{$user}->continue if exists $waiting_requests{$user};
+		$waiting_requests{$user}=$response;
+		return RC_WAIT
+	}
 
-  RC_OK
+	RC_OK
 }
 
 sub pre_userget{
-  my ($request, $response)=@_;
-  my $user=$request->header('Username');
-  return RC_OK if $response->code;
-  return RC_OK unless $user;
-  return RC_OK unless $request->uri =~ m,/userget,;
+	my ($request, $response)=@_;
+	my $user=$request->header('Username');
+	return RC_OK if $response->code;
+	return RC_OK unless $user;
+	return RC_OK unless $request->uri =~ m,/userget,;
 
-  unless (exists $responses{$user}) {
-	$log->debug("No pending responses for $user, entering RC_WAIT");
-	$waiting_userrequests{$user}->continue if exists $waiting_userrequests{$user};
-	$waiting_userrequests{$user}=$response;
-	return RC_WAIT
-  }
+	unless (exists $responses{$user}) {
+		$log->debug("No pending responses for $user, entering RC_WAIT");
+		$waiting_userrequests{$user}->continue if exists $waiting_userrequests{$user};
+		$waiting_userrequests{$user}=$response;
+		return RC_WAIT
+	}
 
-  RC_OK
+	RC_OK
 }
 
 sub on_ok{
-  my ($request, $response)=@_;
-  return RC_OK if $response->code;
+	my ($request, $response)=@_;
+	return RC_OK if $response->code;
 
-  $response->code(HTTP_OK);
-  RC_OK
+	$response->code(HTTP_OK);
+	RC_OK
 }
 
 sub on_get{
-  my ($request, $response)=@_;
-  return RC_OK if $response->code;
+	my ($request, $response)=@_;
+	return RC_OK if $response->code;
 
-  eval {
-	my $user=$request->header('Username');
-	$log->debug("on_get from user $user");
+	eval {
+		my $user=$request->header('Username');
+		$log->debug("on_get from user $user");
 
-	if (exists $commands{$user}) {
-	  my $json=encode_json thaw $commands{$user};
-	  $log->debug("Sending JSON: $json to $user");
-	  $response->content($json);
-	  $response->code(HTTP_OK);
-	  $response->message('Commands sent');
-	} else {
-	  $log->debug("Sending back 204 No Content");
-	  $response->code(HTTP_NO_CONTENT);
-	  $response->message('No pending commands');
-	}
+		if (exists $commands{$user}) {
+			my $json=encode_json thaw $commands{$user};
+			$log->debug("Sending JSON: $json to $user");
+			$response->content($json);
+			$response->code(HTTP_OK);
+			$response->message('Commands sent');
+		} else {
+			$log->debug("Sending back 204 No Content");
+			$response->code(HTTP_NO_CONTENT);
+			$response->message('No pending commands');
+		}
 
-	delete $commands{$user}
-  };
+		delete $commands{$user}
+	};
 
-  $log->error("ERROR: $@") if $@ && $@ !~ /^Bad Request /;
+	$log->error("ERROR: $@") if $@ && $@ !~ /^Bad Request /;
 
-  RC_OK
+	RC_OK
 }
 
 sub on_userget{
-  my ($request, $response)=@_;
-  return RC_OK if $response->code;
+	my ($request, $response)=@_;
+	return RC_OK if $response->code;
 
-  eval {
-	my $user=$request->header('Username');
-	$log->debug("on_userget from user $user");
+	eval {
+		my $user=$request->header('Username');
+		$log->debug("on_userget from user $user");
 
-	if (exists $responses{$user}) {
-	  my $json=encode_json $responses{$user};
-	  $log->debug("Sending JSON: $json to $user");
-	  $response->content($json);
-	  $response->code(HTTP_OK);
-	  $response->message('Responses sent');
-	} else {
-	  $log->debug("Sending back 204 No Content");
-	  $response->code(HTTP_NO_CONTENT);
-	  $response->message('No pending responses');
-	}
+		if (exists $responses{$user}) {
+			my $json=encode_json $responses{$user};
+			$log->debug("Sending JSON: $json to $user");
+			$response->content($json);
+			$response->code(HTTP_OK);
+			$response->message('Responses sent');
+		} else {
+			$log->debug("Sending back 204 No Content");
+			$response->code(HTTP_NO_CONTENT);
+			$response->message('No pending responses');
+		}
 
-	delete $responses{$user}
-  };
+		delete $responses{$user}
+	};
 
-  $log->error("ERROR: $@") if $@ && $@ !~ /^Bad Request /;
+	$log->error("ERROR: $@") if $@ && $@ !~ /^Bad Request /;
 
-  RC_OK
+	RC_OK
 }
 
 sub on_send{
-  my ($request, $response)=@_;
-  return RC_OK if $response->code;
+	my ($request, $response)=@_;
+	return RC_OK if $response->code;
 
-  eval {
-	httpdie $response, 'All requests must use the POST http method' unless $request->method eq 'POST';
-	my $user=$request->header('Username');
+	eval {
+		httpdie $response, 'All requests must use the POST http method' unless $request->method eq 'POST';
+		my $user=$request->header('Username');
 
-	my $destination=$request->header('X-Destination') // httpdie $response, 'Missing destination address';
-	my ($driver, $address)=shellwords $destination;
+		my $destination=$request->header('X-Destination') // httpdie $response, 'Missing destination address';
+		my ($driver, $address)=shellwords $destination;
 
-	my $content=$request->content // httpdie $response, 'Content is undef';
+		my $content=$request->content // httpdie $response, 'Content is undef';
 
-	if ($driver eq 'HTTP') {
-	  $responses{$user}//=[];
-	  push $responses{$user}, $content;
-	  if (exists $waiting_userrequests{$user}) {
-		$waiting_userrequests{$user}->continue;
-		delete $waiting_userrequests{$user}
-	  }
-	} else {
-	  unless ($ok_user_addresses{"$user $driver $address"}) {
-		$response->code(HTTP_FORBIDDEN);
-		$response->message("$user is not allowed to send messages to $address");
-		return
-	  }
+		if ($driver eq 'HTTP') {
+			$responses{$user}//=[];
+			push $responses{$user}, $content;
+			if (exists $waiting_userrequests{$user}) {
+				$waiting_userrequests{$user}->continue;
+				delete $waiting_userrequests{$user}
+			}
+		} else {
+			unless ($ok_user_addresses{"$user $driver $address"}) {
+				$response->code(HTTP_FORBIDDEN);
+				$response->message("$user is not allowed to send messages to $address");
+				return
+			}
 
-	  POE::Kernel->post($driver, 'send_message', $address, $content) or $log->error("Driver not found: $driver");
-	}
+			POE::Kernel->post($driver, 'send_message', $address, $content) or $log->error("Driver not found: $driver");
+		}
 
-	$response->code(HTTP_NO_CONTENT);
-	$response->message('Message sent');
-  };
+		$response->code(HTTP_NO_CONTENT);
+		$response->message('Message sent');
+	};
 
-  $log->error("ERROR: $@") if $@ && $@ !~ /^Bad Request /;
-  $log->debug('Responding to send from $user with '.$response->code.' '.$response->message);
-  RC_OK
+	$log->error("ERROR: $@") if $@ && $@ !~ /^Bad Request /;
+	$log->debug('Responding to send from $user with '.$response->code.' '.$response->message);
+	RC_OK
 }
 
 sub on_usersend{
-  my ($request, $response)=@_;
-  $log->debug("asdasd asd");
-  return RC_OK if $response->code;
+	my ($request, $response)=@_;
+	$log->debug("asdasd asd");
+	return RC_OK if $response->code;
 
-  eval{
-	httpdie $response, 'All requests must use the POST http method' unless $request->method eq 'POST';
-	my $user=$request->header('Username');
+	eval{
+		httpdie $response, 'All requests must use the POST http method' unless $request->method eq 'POST';
+		my $user=$request->header('Username');
 
-	my $content=$request->content // httpdie $response, 'Content is undef';
+		my $content=$request->content // httpdie $response, 'Content is undef';
 
-	sendmsg $user, $request->header('X-Requestid'), HTTP => shellwords $_ for split '\n', $content;
+		sendmsg $user, $request->header('X-Requestid'), HTTP => shellwords $_ for split '\n', $content;
 
-	$response->code(HTTP_NO_CONTENT);
-	$response->message('Command sent');
-  };
+		$response->code(HTTP_NO_CONTENT);
+		$response->message('Command sent');
+	};
 
-  $log->error("ERROR: $@") if $@ && $@ !~ /^Bad Request /;
-  $log->debug('Responding to usersend from $user with '.$response->code.' '.$response->message);
-  RC_OK
+	$log->error("ERROR: $@") if $@ && $@ !~ /^Bad Request /;
+	$log->debug('Responding to usersend from $user with '.$response->code.' '.$response->message);
+	RC_OK
 }
 
-1
-
+1;
 __END__
 
 =encoding utf-8

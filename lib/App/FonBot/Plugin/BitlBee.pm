@@ -1,6 +1,6 @@
 package App::FonBot::Plugin::BitlBee;
 
-our $VERSION = '0.000_3';
+our $VERSION = '0.000_4';
 
 use v5.14;
 use strict;
@@ -16,28 +16,28 @@ use App::FonBot::Plugin::Config qw/$bitlbee_enabled $bitlbee_nick $bitlbee_serve
 ##################################################
 
 sub _start{
-  return unless $bitlbee_enabled;
-  my $self=$_[OBJECT];
+	return unless $bitlbee_enabled;
+	my $self=$_[OBJECT];
 
-  $self->{irc} = POE::Component::IRC->spawn(
-	Flood => 1,
-	Nick => $bitlbee_nick,
-	Username => $bitlbee_nick,
-	Ircname => 'FonBot',
-	Server => $bitlbee_server,
-	Port => $bitlbee_port,
-  );
-  $self->{irc}->yield(register => qw/msg public/);
-  $self->{irc}->yield(connect => {});
-  $self->{irc}->plugin_add(Connector => POE::Component::IRC::Plugin::Connector->new);
+	$self->{irc} = POE::Component::IRC->spawn(
+		Flood => 1,
+		Nick => $bitlbee_nick,
+		Username => $bitlbee_nick,
+		Ircname => 'FonBot',
+		Server => $bitlbee_server,
+		Port => $bitlbee_port,
+	);
+	$self->{irc}->yield(register => qw/msg public/);
+	$self->{irc}->yield(connect => {});
+	$self->{irc}->plugin_add(Connector => POE::Component::IRC::Plugin::Connector->new);
 
-  $_[KERNEL]->alias_set('BITLBEE')
+	$_[KERNEL]->alias_set('BITLBEE')
 }
 
 sub irc_public{
-  my ($self, $msg)=@_[OBJECT, ARG2];
-  $self->{irc}->yield(privmsg => '&bitlbee', "identify $bitlbee_password") if $msg =~ /^Welcome to the BitlBee gateway!$/;
-  $self->{irc}->yield(privmsg => '&bitlbee', 'yes') if $msg =~ /New request:/;
+	my ($self, $msg)=@_[OBJECT, ARG2];
+	$self->{irc}->yield(privmsg => '&bitlbee', "identify $bitlbee_password") if $msg =~ /^Welcome to the BitlBee gateway!$/;
+	$self->{irc}->yield(privmsg => '&bitlbee', 'yes') if $msg =~ /New request:/;
 }
 
 1;

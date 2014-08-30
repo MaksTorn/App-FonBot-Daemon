@@ -1,6 +1,6 @@
 package App::FonBot::Plugin::Common;
 
-our $VERSION = '0.000_3';
+our $VERSION = '0.000_4';
 
 use v5.14;
 use strict;
@@ -24,43 +24,43 @@ our @EXPORT = qw/%ok_user_addresses %commands %waiting_requests sendmsg/;
 my $log=Log::Log4perl->get_logger(__PACKAGE__);
 
 sub init{
-  $log->info('setting user and group');
-  $)=join ' ', scalar getgrnam $group, map {scalar getgrnam $_} @supplementary_groups;
-  $(=scalar getgrnam $group;
-  $<=$>=scalar getpwnam $user;
-  chdir $dir;
+	$log->info('setting user and group');
+	$)=join ' ', scalar getgrnam $group, map {scalar getgrnam $_} @supplementary_groups;
+	$(=scalar getgrnam $group;
+	$<=$>=scalar getpwnam $user;
+	chdir $dir;
 
-  $log->info('initializing '.__PACKAGE__);
-  tie %ok_user_addresses, DB_File => 'ok_user_addresses.db';
-  tie %commands, DB_File => 'commands.db';
+	$log->info('initializing '.__PACKAGE__);
+	tie %ok_user_addresses, DB_File => 'ok_user_addresses.db';
+	tie %commands, DB_File => 'commands.db';
 }
 
 sub fini{
-  $log->info('finishing '.__PACKAGE__);
-  untie %ok_user_addresses;
-  untie %commands;
+	$log->info('finishing '.__PACKAGE__);
+	untie %ok_user_addresses;
+	untie %commands;
 }
 
 ##################################################
 
 sub sendmsg{
-  my ($touser,$requestid,$replyto,$command,@args)=@_;
+	my ($touser,$requestid,$replyto,$command,@args)=@_;
 
-  my $data={command=>$command, replyto=>$replyto, args => \@args };
-  $data->{requestid} = $requestid if defined $requestid;
+	my $data={command=>$command, replyto=>$replyto, args => \@args };
+	$data->{requestid} = $requestid if defined $requestid;
 
-  if (exists $commands{$touser}) {
-	my $temp = thaw $commands{$touser};
-	push $temp, $data;
-	$commands{$touser} = freeze $temp
-  } else {
-	$commands{$touser} = freeze [$data]
-  }
+	if (exists $commands{$touser}) {
+		my $temp = thaw $commands{$touser};
+		push $temp, $data;
+		$commands{$touser} = freeze $temp
+	} else {
+		$commands{$touser} = freeze [$data]
+	}
 
-  if (exists $waiting_requests{$touser}) {
-	$waiting_requests{$touser}->continue;
-	delete $waiting_requests{$touser}
-  }
+	if (exists $waiting_requests{$touser}) {
+		$waiting_requests{$touser}->continue;
+		delete $waiting_requests{$touser}
+	}
 }
 
 1;

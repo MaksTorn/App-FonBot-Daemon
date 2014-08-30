@@ -1,6 +1,6 @@
 package App::FonBot::Daemon;
 
-our $VERSION = '0.000_3';
+our $VERSION = '0.000_4';
 
 use 5.014000;
 use strict;
@@ -22,14 +22,14 @@ use constant PLUGINS => map { "App::FonBot::Plugin::$_" } qw/Config Common OFTC 
 ##################################################
 
 sub run{
-  Log::Log4perl->init('/etc/fonbotd/log4perl.conf');
-  chdir '/var/lib/fonbot';
-  $_->init for PLUGINS;
-  POE::Kernel->run
+	Log::Log4perl->init('/etc/fonbotd/log4perl.conf');
+	chdir '/var/lib/fonbot';
+	$_->init for PLUGINS;
+	POE::Kernel->run;
 }
 
 sub finish{
-  $_->fini for reverse PLUGINS
+	$_->fini for reverse PLUGINS
 }
 
 1;

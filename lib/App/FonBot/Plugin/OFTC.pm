@@ -1,6 +1,6 @@
 package App::FonBot::Plugin::OFTC;
 
-our $VERSION = '0.000_3';
+our $VERSION = '0.000_4';
 
 use v5.14;
 use strict;
@@ -18,30 +18,30 @@ use App::FonBot::Plugin::Config qw/$oftc_enabled $oftc_nick @oftc_channels $oftc
 ##################################################
 
 sub _start{
-  return unless $oftc_enabled;
-  my $self=$_[OBJECT];
+	return unless $oftc_enabled;
+	my $self=$_[OBJECT];
 
-  $self->{irc} = POE::Component::IRC->spawn(
-	Nick => $oftc_nick,
-	Username => $oftc_nick,
-	Ircname => 'FonBot OFTC Transport',
-	Server => 'irc.oftc.net',
-	Port => 6697,
-	UseSSL => 1,
-  );
-  $self->{irc}->yield(register => qw/msg/);
-  $self->{irc}->yield(connect => {});
+	$self->{irc} = POE::Component::IRC->spawn(
+		Nick => $oftc_nick,
+		Username => $oftc_nick,
+		Ircname => 'FonBot OFTC Transport',
+		Server => 'irc.oftc.net',
+		Port => 6697,
+		UseSSL => 1,
+	);
+	$self->{irc}->yield(register => qw/msg/);
+	$self->{irc}->yield(connect => {});
 
-  $self->{irc}->plugin_add(Connector => POE::Component::IRC::Plugin::Connector->new);
-  $self->{irc}->plugin_add(AutoJoin => POE::Component::IRC::Plugin::AutoJoin->new(
-	Channels => \@oftc_channels
-  ));
+	$self->{irc}->plugin_add(Connector => POE::Component::IRC::Plugin::Connector->new);
+	$self->{irc}->plugin_add(AutoJoin => POE::Component::IRC::Plugin::AutoJoin->new(
+		Channels => \@oftc_channels
+	));
 
-  $self->{irc}->plugin_add(NickServID => POE::Component::IRC::Plugin::NickServID->new(
-	Password => $oftc_nickserv_password
-  ));
+	$self->{irc}->plugin_add(NickServID => POE::Component::IRC::Plugin::NickServID->new(
+		Password => $oftc_nickserv_password
+	));
 
-  $_[KERNEL]->alias_set('OFTC');
+	$_[KERNEL]->alias_set('OFTC');
 }
 
 1;

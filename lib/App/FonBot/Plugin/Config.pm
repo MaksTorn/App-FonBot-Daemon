@@ -1,6 +1,6 @@
 package App::FonBot::Plugin::Config;
 
-our $VERSION = '0.000_3';
+our $VERSION = '0.000_4';
 
 use v5.14;
 use strict;
@@ -24,15 +24,15 @@ our ($dir, $user, $group, @supplementary_groups);
 my $log=Log::Log4perl->get_logger(__PACKAGE__);
 
 sub init{
-  $log->info('reading config file');
-  unless (my $ret = do '/etc/fonbotd/config.pl') {
-	die "Cannot parse config file: $@" if $@;
-	die "Cannot run config file: $!" unless $ret;
-  }
+	$log->info('reading config file');
+	unless (my $ret = do '/etc/fonbotd/config.pl') {
+		die "Cannot parse config file: $@" if $@;
+		die "Cannot run config file: $!" unless $ret;
+	}
 }
 
 sub fini{
-  #no-op
+	#no-op
 }
 
 1;
@@ -47,29 +47,29 @@ App::FonBot::Plugin::Config - FonBot plugin for reading configuration files
 
 =head1 SYNOPSIS
 
-	use App::FonBot::Plugin::Config qw/$oftc_enabled $oftc_nick @oftc_channels $oftc_nickserv_password $bitlbee_enabled $bitlbee_nick $bitlbee_server $bitlbee_port $bitlbee_password $user $group @supplementary_groups $httpd_port/;
-	App::FonBot::Plugin::Config->init;
+  use App::FonBot::Plugin::Config qw/$oftc_enabled $oftc_nick @oftc_channels $oftc_nickserv_password $bitlbee_enabled $bitlbee_nick $bitlbee_server $bitlbee_port $bitlbee_password $user $group @supplementary_groups $httpd_port/;
+  App::FonBot::Plugin::Config->init;
 
-	# Variables used in App::FonBot:Plugin::OFTC
-    say "The OFTC plugin is ".($oftc_enabled ? 'enabled' : 'disabled');
-	say "The OFTC NickServ password is $oftc_nickserv_password";
-	say "The OFTC nickname is $oftc_nick";
-	say "The OFTC channels are @oftc_channels";
+  # Variables used in App::FonBot:Plugin::OFTC
+  say "The OFTC plugin is ".($oftc_enabled ? 'enabled' : 'disabled');
+  say "The OFTC NickServ password is $oftc_nickserv_password";
+  say "The OFTC nickname is $oftc_nick";
+  say "The OFTC channels are @oftc_channels";
 
-	# Variables used in App::FonBot::Plugin::BitlBee
-    say "The BitlBee plugin is ".($bitlbee_enabled ? 'enabled' : 'disabled');
-    say "The BitlBee server runs on port $bitlbee_port of host $bitlbee_server"
-	say "The BitlBee nickname is $bitlbee_nick";
-	say "The BitlBee password is $bitlbee_password";
+  # Variables used in App::FonBot::Plugin::BitlBee
+  say "The BitlBee plugin is ".($bitlbee_enabled ? 'enabled' : 'disabled');
+  say "The BitlBee server runs on port $bitlbee_port of host $bitlbee_server"
+  say "The BitlBee nickname is $bitlbee_nick";
+  say "The BitlBee password is $bitlbee_password";
 
-	# Variables used in App::FonBot::Plugin::Common
-    say "The storage directory is $dir";
-	say "The user is $user";
-	say "The primary group is $group";
-	say "The supplementary groups are @supplementary_groups";
+  # Variables used in App::FonBot::Plugin::Common
+  say "The storage directory is $dir";
+  say "The user is $user";
+  say "The primary group is $group";
+  say "The supplementary groups are @supplementary_groups";
 
-    # Variables used in App::FonBot::Plugin::HTTPD
-    say "The HTTPD listens on port $httpd_port"
+  # Variables used in App::FonBot::Plugin::HTTPD
+  say "The HTTPD listens on port $httpd_port"
 
 =head1 DESCRIPTION
 

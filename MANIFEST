@@ -14,5 +14,6 @@ lib/App/FonBot/Plugin/HTTPD.pm
 lib/App/FonBot/Plugin/Common.pm
 lib/App/FonBot/Plugin/BitlBee.pm
 lib/App/FonBot/Plugin/OFTC.pm
-
-META.yml                                 Module meta-data (added by MakeMaker)
+META.yml                                 Module YAML meta-data (added by MakeMaker)
+META.json                                Module JSON meta-data (added by MakeMaker)
+SIGNATURE                                Public-key signature (added by MakeMaker)
