@@ -1,6 +1,6 @@
 package App::FonBot::Plugin::IRC;
 
-our $VERSION = '0.000_4';
+our $VERSION = '0.000_5';
 
 use v5.14;
 use strict;

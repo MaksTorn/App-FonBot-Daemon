@@ -56,7 +56,8 @@
    "resources" : {
       "repository" : {
          "url" : "http://git.ieval.ro/?p=app-fonbot-daemon.git"
-      }
+      },
+      "x_IRC" : "irc://irc.freenode.net/#fonbot"
    },
-   "version" : "0.000_4"
+   "version" : "0.000_5"
 }

@@ -32,6 +32,7 @@ WriteMakefile(
 		dynamic_config => 0,
 		resources      => {
 			repository   => 'http://git.ieval.ro/?p=app-fonbot-daemon.git',
+			IRC          => 'irc://irc.freenode.net/#fonbot',
 		},
 	}
 );

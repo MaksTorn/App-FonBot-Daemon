@@ -1,5 +1,8 @@
 Revision history for Perl extension App::FonBot::Daemon.
 
+0.000_5 2014-09-21T00:33+03:00
+ - Add IRC to resources
+
 0.000_4 2014-08-31T01:05+03:00
  - Update Changes to follow CPAN::Changes::Spec
  - Remove test boilerplate (tests are still not included)

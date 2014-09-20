@@ -36,5 +36,6 @@ requires:
   Text::ParseWords: '0'
   perl: '5.014000'
 resources:
+  IRC: irc://irc.freenode.net/#fonbot
   repository: http://git.ieval.ro/?p=app-fonbot-daemon.git
-version: 0.000_4
+version: 0.000_5
